@@ -19,8 +19,8 @@ class IfAnyGet:
         return {
             "required": {
                 "ANY": (any_typ,),
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
             }
         }
 
@@ -32,6 +32,12 @@ class IfAnyGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "ifAnyThenGet"
+
+    def check_lazy_status(self, ANY=None, on_true=None, on_false=None):
+        if ANY and on_true is None:
+            return ["on_true"]
+        if not ANY and on_false is None:
+            return ["on_false"]
 
     def ifAnyThenGet(self, ANY: AnyType, on_true: AnyType, on_false: AnyType):
         return (on_true if ANY else on_false,)
@@ -47,14 +53,20 @@ class OrGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression": ("BOOLEAN", {"default": True}),
             }
         }
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "orGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression=True):
+        if expression and on_true is None:
+            return ["on_true"]
+        if not expression and on_false is None:
+            return ["on_false"]
 
     def orGet(self, on_true: AnyType, on_false: AnyType, expression: bool):
         return (on_true if expression else on_false,)
@@ -70,8 +82,8 @@ class AndGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression1": ("BOOLEAN", {"default": True}),
                 "expression2": ("BOOLEAN", {"default": True}),
             }
@@ -79,6 +91,12 @@ class AndGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "andGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+        if (expression1 and expression2) and on_true is None:
+            return ["on_true"]
+        if not (expression1 and expression2) and on_false is None:
+            return ["on_false"]
 
     def andGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
         if expression1 and expression2:
@@ -97,8 +115,8 @@ class XorGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression1": ("BOOLEAN", {"default": True}),
                 "expression2": ("BOOLEAN", {"default": False}),
             }
@@ -106,6 +124,12 @@ class XorGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "xorGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+        if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
+            return ["on_false"]
+        if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
+            return ["on_true"]
 
     def xorGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
         if expression1 and expression2:
@@ -126,8 +150,8 @@ class NorGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression1": ("BOOLEAN", {"default": False}),
                 "expression2": ("BOOLEAN", {"default": False}),
             }
@@ -135,6 +159,12 @@ class NorGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "norGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+        if (not expression1 and not expression2) and on_true is None:
+            return ["on_true"]
+        if not not expression1 and not expression2 and on_false is None:
+            return ["on_false"]
 
     def norGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
         if not expression1 and not expression2:
@@ -153,8 +183,8 @@ class XnorGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression1": ("BOOLEAN", {"default": True}),
                 "expression2": ("BOOLEAN", {"default": True}),
             }
@@ -162,6 +192,12 @@ class XnorGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "xnorGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+        if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
+            return ["on_true"]
+        if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
+            return ["on_false"]
 
     def xnorGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
         if expression1 and expression2:
@@ -182,8 +218,8 @@ class NandGet:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "on_true": (any_typ,),
-                "on_false": (any_typ,),
+                "on_true": (any_typ, {"lazy": True}),
+                "on_false": (any_typ, {"lazy": True}),
                 "expression1": ("BOOLEAN", {"default": False}),
                 "expression2": ("BOOLEAN", {"default": False}),
             }
@@ -191,6 +227,12 @@ class NandGet:
 
     RETURN_TYPES = (any_typ,)
     FUNCTION = "nandGet"
+
+    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+        if not (expression1 and expression2) and on_true is None:
+            return ["on_true"]
+        if (expression1 and expression2) and on_false is None:
+            return ["on_false"]
 
     def nandGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
         if expression1 and expression2:

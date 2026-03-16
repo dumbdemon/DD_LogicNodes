@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "DD-LogicNodes"
-version = "0.1.0"
+version = "0.1.1"
 description = "A collection of Logic Nodes that I think are missing in core ComfyUI."
 authors = [
   {name = "DumbDemon", email = "ecchimanga@outlook.com"}
