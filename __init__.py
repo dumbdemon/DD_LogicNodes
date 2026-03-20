@@ -1,13 +1,29 @@
-"""Top-level package for dd_logicnodes."""
+from comfy_api.latest import ComfyExtension, io
+from .src.dd_logicnodes.nodes import (
+    IfAnyGet,
+    OrGet,
+    AndGet,
+    NorGet,
+    XorGet,
+    NandGet,
+    XnorGet,
+    IfNot,
+    OrGate,
+    AndGate,
+    NorGate,
+    XorGate,
+    NandGate,
+    XnorGate,
+)
 
-__all__ = [
-    "NODE_CLASS_MAPPINGS",
-    "NODE_DISPLAY_NAME_MAPPINGS",
-]
 
-__author__ = """DumbDemon"""
-__email__ = "ecchimanga@outlook.com"
-__version__ = "0.0.1"
+UE_VERSION = "7.7"
+__all__ = []
 
-from .src.dd_logicnodes.nodes import NODE_CLASS_MAPPINGS
-from .src.dd_logicnodes.nodes import NODE_DISPLAY_NAME_MAPPINGS
+
+async def comfy_entrypoint() -> ComfyExtension:
+    class DDLogicNodes(ComfyExtension):
+        async def get_node_list(self) -> list[type[io.ComfyNode]]:
+            return [IfAnyGet, OrGet, AndGet, NorGet, XorGet, NandGet, XnorGet, IfNot, OrGate, AndGate, NorGate, XorGate, NandGate, XnorGate]
+
+    return DDLogicNodes()

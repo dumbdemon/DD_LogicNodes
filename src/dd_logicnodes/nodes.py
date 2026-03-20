@@ -1,408 +1,434 @@
-# wildcard trick is taken from pythongossss's
-class AnyType(str):
-    def __ne__(self, __value: object) -> bool:
-        return False
+from comfy.comfy_types.node_typing import IO
+from comfy_api.latest import io
 
 
-any_typ = AnyType("*")
+anything = io.Custom(IO.ANY)
+Getters = "DD Logic Nodes/Getters"
+LogicGates = "DD Logic Nodes/Logic Gates"
 
 
 # Getters
-class IfAnyGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class IfAnyGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDIfAnyGet",
+            display_name="DD If Any Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("ANY"),
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "ANY": (any_typ,),
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-            }
-        }
-
-    @classmethod
-    def VALIDATE_INPUTS(cls, input_types):
+    def validate_inputs(cls, input_types):
         if input_types["on_true"] is not input_types["on_false"]:
             return 'Typing of "on_true" and "on_false" do not match.'
         return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "ifAnyThenGet"
-
-    def check_lazy_status(self, ANY=None, on_true=None, on_false=None):
+    @classmethod
+    def check_lazy_status(cls, ANY=None, on_true=None, on_false=None):
         if ANY and on_true is None:
             return ["on_true"]
         if not ANY and on_false is None:
             return ["on_false"]
 
-    def ifAnyThenGet(self, ANY: AnyType, on_true: AnyType, on_false: AnyType):
-        return (on_true if ANY else on_false,)
+    @classmethod
+    def execute(cls, ANY, on_true, on_false) -> io.NodeOutput:
+        return io.NodeOutput(on_true if ANY else on_false)
 
 
-class OrGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class OrGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDOrGetter",
+            display_name="DD Or Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("BOOLEAN", default=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression": ("BOOLEAN", {"default": True}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "orGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression=True):
         if expression and on_true is None:
             return ["on_true"]
         if not expression and on_false is None:
             return ["on_false"]
 
-    def orGet(self, on_true: AnyType, on_false: AnyType, expression: bool):
-        return (on_true if expression else on_false,)
+    @classmethod
+    def execute(cls, on_true, on_false, expression) -> io.NodeOutput:
+        return io.NodeOutput(on_true if expression else on_false)
 
 
-class AndGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class AndGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDAndGetter",
+            display_name="DD And Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression1": ("BOOLEAN", {"default": True}),
-                "expression2": ("BOOLEAN", {"default": True}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "andGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
         if (expression1 and expression2) and on_true is None:
             return ["on_true"]
         if not (expression1 and expression2) and on_false is None:
             return ["on_false"]
 
-    def andGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
+    @classmethod
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (on_true,)
+            return io.NodeOutput(on_true)
         else:
-            return (on_false,)
+            return io.NodeOutput(on_false)
 
 
-class XorGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class XorGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDIfXorGet",
+            display_name="DD XOR Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression1": ("BOOLEAN", {"default": True}),
-                "expression2": ("BOOLEAN", {"default": False}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "xorGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
         if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
             return ["on_false"]
         if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
             return ["on_true"]
 
-    def xorGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
+    @classmethod
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (on_false,)
+            return io.NodeOutput(on_false)
         elif not expression1 and not expression2:
-            return (on_false,)
+            return io.NodeOutput(on_false)
         else:
-            return (on_true,)
+            return io.NodeOutput(on_true)
 
 
-class NorGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class NorGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDIfNorGet",
+            display_name="DD NOR Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("expression1", default=False),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression1": ("BOOLEAN", {"default": False}),
-                "expression2": ("BOOLEAN", {"default": False}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "norGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
         if (not expression1 and not expression2) and on_true is None:
             return ["on_true"]
         if not not expression1 and not expression2 and on_false is None:
             return ["on_false"]
 
-    def norGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
+    @classmethod
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
         if not expression1 and not expression2:
-            return (on_true,)
+            return io.NodeOutput(on_true)
         else:
-            return (on_false,)
+            return io.NodeOutput(on_false)
 
 
-class XnorGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class XnorGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDifXnorGet",
+            display_name="DD XNOR Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression1": ("BOOLEAN", {"default": True}),
-                "expression2": ("BOOLEAN", {"default": True}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "xnorGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
         if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
             return ["on_true"]
         if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
             return ["on_false"]
 
-    def xnorGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
+    @classmethod
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (on_true,)
+            return io.NodeOutput(on_true)
         elif not expression1 and not expression2:
-            return (on_true,)
+            return io.NodeOutput(on_true)
         else:
-            return (on_false,)
+            return io.NodeOutput(on_false)
 
 
-class NandGet:
-    CATEGORY = "DD Logic Nodes/Getters"
-
-    def __init__(self) -> None:
-        pass
+class NandGet(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDifNandGet",
+            display_name="DD NAND Getter",
+            category=Getters,
+            inputs=[
+                anything.Input("on_true", lazy=True),
+                anything.Input("on_false", lazy=True),
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "on_true": (any_typ, {"lazy": True}),
-                "on_false": (any_typ, {"lazy": True}),
-                "expression1": ("BOOLEAN", {"default": False}),
-                "expression2": ("BOOLEAN", {"default": False}),
-            }
-        }
+    def validate_inputs(cls, input_types):
+        if input_types["on_true"] is not input_types["on_false"]:
+            return 'Typing of "on_true" and "on_false" do not match.'
+        return True
 
-    RETURN_TYPES = (any_typ,)
-    FUNCTION = "nandGet"
-
-    def check_lazy_status(self, on_true=None, on_false=None, expression1=True, expression2=True):
+    @classmethod
+    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
         if not (expression1 and expression2) and on_true is None:
             return ["on_true"]
         if (expression1 and expression2) and on_false is None:
             return ["on_false"]
 
-    def nandGet(self, on_true: AnyType, on_false: AnyType, expression1: bool, expression2: bool):
+    @classmethod
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (on_false,)
+            return io.NodeOutput(on_false)
         else:
-            return (on_true,)
+            return io.NodeOutput(on_true)
 
 
-class IfNot:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class IfNot(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDNotGate",
+            display_name="DD Not Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"boolean": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "invertBoolean"
-
-    def invertBoolean(self, boolean: bool):
-        return (not boolean,)
+    def execute(cls, boolean) -> io.NodeOutput:
+        return io.NodeOutput(not boolean)
 
 
 # Logic Gates
-class OrGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class OrGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDOrGate",
+            display_name="DD Or Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": True}), "expression2": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "orGate"
-
-    def orGate(self, expression1: bool, expression2: bool):
-        return (expression1 or expression2,)
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
+        return io.NodeOutput(expression1 or expression2)
 
 
-class AndGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class AndGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDAndGate",
+            display_name="DD And Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": True}), "expression2": ("BOOLEAN", {"default": True})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "andGate"
-
-    def andGate(self, expression1: bool, expression2: bool):
-        return (expression1 and expression2,)
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
+        return io.NodeOutput(expression1 and expression2)
 
 
-class XorGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class XorGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDIfXorGate",
+            display_name="DD XOR Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": True}), "expression2": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "xorGate"
-
-    def xorGate(self, expression1: bool, expression2: bool):
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (False,)
+            return io.NodeOutput(False)
         elif not expression1 and not expression2:
-            return (False,)
+            return io.NodeOutput(False)
         else:
-            return (True,)
+            return io.NodeOutput(True)
 
 
-class NorGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class NorGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDIfNorGate",
+            display_name="DD NOR Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=False),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": False}), "expression2": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "norGate"
-
-    def norGate(self, expression1: bool, expression2: bool):
-        return (not expression1 and not expression2,)
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
+        return io.NodeOutput(not expression1 and not expression2)
 
 
-class NandGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class NandGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDifNandGate",
+            display_name="DD NAND Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=False),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": False}), "expression2": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "nandGate"
-
-    def nandGate(self, expression1: bool, expression2: bool):
-        return (not (expression1 and expression2),)
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
+        return io.NodeOutput(not (expression1 and expression2))
 
 
-class XnorGate:
-    CATEGORY = "DD Logic Nodes/Logic Gates"
-
-    def __init__(self) -> None:
-        pass
+class XnorGate(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        return io.Schema(
+            node_id="DDifXnorGate",
+            display_name="DD XNOR Gate",
+            category=LogicGates,
+            inputs=[
+                io.Boolean.Input("expression1", default=True),
+                io.Boolean.Input("expression2", default=True),
+            ],
+            outputs=[
+                anything.Output("*"),
+            ],
+        )
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"expression1": ("BOOLEAN", {"default": False}), "expression2": ("BOOLEAN", {"default": False})}}
-
-    RETURN_TYPES = ("BOOLEAN",)
-    FUNCTION = "Gate"
-
-    def orGate(self, expression1: bool, expression2: bool):
+    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
         if expression1 and expression2:
-            return (True,)
+            return io.NodeOutput(True)
         elif not expression1 and not expression2:
-            return (True,)
-        return (False,)
-
-
-# A dictionary that contains all nodes you want to export with their names
-# NOTE: names should be globally unique
-NODE_CLASS_MAPPINGS = {
-    "DDIfAnyGet": IfAnyGet,
-    "DDOrGetter": OrGet,
-    "DDAndGetter": AndGet,
-    "DDIfXorGet": XorGet,
-    "DDIfNorGet": NorGet,
-    "DDifNandGet": NandGet,
-    "DDifXnorGet": XnorGet,
-    "DDNotGate": IfNot,
-    "DDOrGate": OrGate,
-    "DDAndGate": AndGate,
-    "DDIfXorGate": XorGate,
-    "DDIfNorGate": NorGate,
-    "DDifNandGate": NandGate,
-    "DDifXnorGate": XnorGate,
-}
-
-# A dictionary that contains the friendly/humanly readable titles for the nodes
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "DDIfAnyGet": "DD If Any Getter",
-    "DDOrGetter": "DD Or Getter",
-    "DDAndGetter": "DD And Getter",
-    "DDIfXorGet": "DD XOR Getter",
-    "DDIfNorGet": "DD NOR Getter",
-    "DDifNandGet": "DD NAND Getter",
-    "DDifXnorGet": "DD XNOR Getter",
-    "DDNotGate": "DD Not Gate",
-    "DDOrGate": "DD Or Gate",
-    "DDAndGate": "DD And Gate",
-    "DDIfXorGate": "DD XOR Gate",
-    "DDIfNorGate": "DD NOR Gate",
-    "DDifNandGate": "DD NAND Gate",
-    "DDifXnorGate": "DD XNOR Gate",
-}
+            return io.NodeOutput(True)
+        return io.NodeOutput(False)
