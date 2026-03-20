@@ -7,7 +7,7 @@ from .src.dd_logicnodes.nodes import (
     XorGet,
     NandGet,
     XnorGet,
-    IfNot,
+    NotGate,
     OrGate,
     AndGate,
     NorGate,
@@ -24,6 +24,21 @@ __all__ = []
 async def comfy_entrypoint() -> ComfyExtension:
     class DDLogicNodes(ComfyExtension):
         async def get_node_list(self) -> list[type[io.ComfyNode]]:
-            return [IfAnyGet, OrGet, AndGet, NorGet, XorGet, NandGet, XnorGet, IfNot, OrGate, AndGate, NorGate, XorGate, NandGate, XnorGate]
+            return [
+                IfAnyGet,
+                OrGet,
+                AndGet,
+                NorGet,
+                XorGet,
+                NandGet,
+                XnorGet,
+                NotGate,
+                OrGate,
+                AndGate,
+                NorGate,
+                XorGate,
+                NandGate,
+                XnorGate,
+            ]
 
     return DDLogicNodes()

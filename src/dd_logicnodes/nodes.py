@@ -2,7 +2,6 @@ from comfy.comfy_types.node_typing import IO
 from comfy_api.latest import io
 
 
-anything = io.Custom(IO.ANY)
 Getters = "DD Logic Nodes/Getters"
 LogicGates = "DD Logic Nodes/Logic Gates"
 MISSING = object()
@@ -18,7 +17,7 @@ class IfAnyGet(io.ComfyNode):
             display_name="DD If Any Getter",
             category=Getters,
             inputs=[
-                anything.Input("ANY"),
+                io.Custom(IO.ANY).Input("ANY", optional=True),
                 io.MatchType.Input("on_true", template=template, lazy=True),
                 io.MatchType.Input("on_false", template=template, lazy=True),
             ],
@@ -33,13 +32,9 @@ class IfAnyGet(io.ComfyNode):
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
-        if ANY and on_true is None:
-            return ["on_true"]
-        if not ANY and on_false is None:
-            return ["on_false"]
 
     @classmethod
-    def execute(cls, ANY, on_true, on_false) -> io.NodeOutput:
+    def execute(cls, ANY=None, on_true=None, on_false=None) -> io.NodeOutput:
         return io.NodeOutput(on_true if ANY else on_false)
 
 
@@ -271,7 +266,7 @@ class NandGet(io.ComfyNode):
             return io.NodeOutput(on_true)
 
 
-class IfNot(io.ComfyNode):
+class NotGate(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
