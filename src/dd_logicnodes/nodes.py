@@ -279,7 +279,7 @@ class IfNot(io.ComfyNode):
             display_name="DD Not Gate",
             category=LogicGates,
             inputs=[
-                io.Boolean.Input("BOOLEAN", default=True),
+                io.Boolean.Input("boolean", default=True),
             ],
             outputs=[
                 io.Boolean.Output("*"),
