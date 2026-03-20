@@ -5,34 +5,34 @@ from comfy_api.latest import io
 anything = io.Custom(IO.ANY)
 Getters = "DD Logic Nodes/Getters"
 LogicGates = "DD Logic Nodes/Logic Gates"
+MISSING = object()
 
 
 # Getters
 class IfAnyGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDIfAnyGet",
             display_name="DD If Any Getter",
             category=Getters,
             inputs=[
                 anything.Input("ANY"),
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, ANY=None, on_true=None, on_false=None):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if ANY and on_true is None:
             return ["on_true"]
         if not ANY and on_false is None:
@@ -46,28 +46,27 @@ class IfAnyGet(io.ComfyNode):
 class OrGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDOrGetter",
             display_name="DD Or Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
-                io.Boolean.Input("BOOLEAN", default=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
+                io.Boolean.Input("expression", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if expression and on_true is None:
             return ["on_true"]
         if not expression and on_false is None:
@@ -81,29 +80,28 @@ class OrGet(io.ComfyNode):
 class AndGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDAndGetter",
             display_name="DD And Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
                 io.Boolean.Input("expression1", default=True),
                 io.Boolean.Input("expression2", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if (expression1 and expression2) and on_true is None:
             return ["on_true"]
         if not (expression1 and expression2) and on_false is None:
@@ -120,29 +118,28 @@ class AndGet(io.ComfyNode):
 class XorGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDIfXorGet",
             display_name="DD XOR Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
                 io.Boolean.Input("expression1", default=True),
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
             return ["on_false"]
         if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
@@ -161,29 +158,28 @@ class XorGet(io.ComfyNode):
 class NorGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDIfNorGet",
             display_name="DD NOR Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
                 io.Boolean.Input("expression1", default=False),
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if (not expression1 and not expression2) and on_true is None:
             return ["on_true"]
         if not not expression1 and not expression2 and on_false is None:
@@ -200,29 +196,28 @@ class NorGet(io.ComfyNode):
 class XnorGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDifXnorGet",
             display_name="DD XNOR Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
                 io.Boolean.Input("expression1", default=True),
                 io.Boolean.Input("expression2", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
             return ["on_true"]
         if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
@@ -241,29 +236,28 @@ class XnorGet(io.ComfyNode):
 class NandGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("switch")
         return io.Schema(
             node_id="DDifNandGet",
             display_name="DD NAND Getter",
             category=Getters,
             inputs=[
-                anything.Input("on_true", lazy=True),
-                anything.Input("on_false", lazy=True),
+                io.MatchType.Input("on_true", template=template, lazy=True),
+                io.MatchType.Input("on_false", template=template, lazy=True),
                 io.Boolean.Input("expression1", default=True),
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.MatchType.Output(display_name="*", template=template),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, input_types):
-        if input_types["on_true"] is not input_types["on_false"]:
-            return 'Typing of "on_true" and "on_false" do not match.'
-        return True
-
-    @classmethod
     def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+        if on_false is MISSING:
+            return ["on_true"]
+        if on_true is MISSING:
+            return ["on_false"]
         if not (expression1 and expression2) and on_true is None:
             return ["on_true"]
         if (expression1 and expression2) and on_false is None:
@@ -285,11 +279,10 @@ class IfNot(io.ComfyNode):
             display_name="DD Not Gate",
             category=LogicGates,
             inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=False),
+                io.Boolean.Input("BOOLEAN", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -311,7 +304,7 @@ class OrGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -332,7 +325,7 @@ class AndGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -353,7 +346,7 @@ class XorGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -379,7 +372,7 @@ class NorGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -400,7 +393,7 @@ class NandGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=False),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
@@ -421,7 +414,7 @@ class XnorGate(io.ComfyNode):
                 io.Boolean.Input("expression2", default=True),
             ],
             outputs=[
-                anything.Output("*"),
+                io.Boolean.Output("*"),
             ],
         )
 
