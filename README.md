@@ -39,3 +39,8 @@ This currently has 14 nodes.
   - Returns `on_true` except when __both__  expressions are true.
 - DD XNOR Getter
   - Returns `on_true` if __both__ expresions are true or if __both__ expresions are false.
+
+### Logic Helpers
+
+- DD Rerouter
+  - Allows you to change where something is routed.

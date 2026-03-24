@@ -3,11 +3,9 @@ from comfy_api.latest import io
 
 
 Getters = "DD Logic Nodes/Getters"
-LogicGates = "DD Logic Nodes/Logic Gates"
 MISSING = object()
 
 
-# Getters
 class IfAnyGet(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
@@ -32,6 +30,7 @@ class IfAnyGet(io.ComfyNode):
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
+        return None
 
     @classmethod
     def execute(cls, ANY=None, on_true=None, on_false=None) -> io.NodeOutput:
@@ -66,6 +65,7 @@ class OrGet(io.ComfyNode):
             return ["on_true"]
         if not expression and on_false is None:
             return ["on_false"]
+        return None
 
     @classmethod
     def execute(cls, on_true, on_false, expression) -> io.NodeOutput:
@@ -92,7 +92,7 @@ class AndGet(io.ComfyNode):
         )
 
     @classmethod
-    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+    def check_lazy_status(cls, on_true, on_false, expression1, expression2):
         if on_false is MISSING:
             return ["on_true"]
         if on_true is MISSING:
@@ -101,13 +101,13 @@ class AndGet(io.ComfyNode):
             return ["on_true"]
         if not (expression1 and expression2) and on_false is None:
             return ["on_false"]
+        return None
 
     @classmethod
-    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool):
         if expression1 and expression2:
             return io.NodeOutput(on_true)
-        else:
-            return io.NodeOutput(on_false)
+        return io.NodeOutput(on_false)
 
 
 class XorGet(io.ComfyNode):
@@ -130,24 +130,26 @@ class XorGet(io.ComfyNode):
         )
 
     @classmethod
-    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+    def check_lazy_status(cls, on_true, on_false, expression1, expression2):
         if on_false is MISSING:
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
-        if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
+        if (expression1 and expression2) and on_false is None:
             return ["on_false"]
-        if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
+        if (not expression1 and not expression2) and on_false is None:
+            return ["on_false"]
+        if (expression1 or expression2) and on_true is None:
             return ["on_true"]
+        return None
 
     @classmethod
-    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool):
         if expression1 and expression2:
             return io.NodeOutput(on_false)
-        elif not expression1 and not expression2:
+        if not expression1 and not expression2:
             return io.NodeOutput(on_false)
-        else:
-            return io.NodeOutput(on_true)
+        return io.NodeOutput(on_true)
 
 
 class NorGet(io.ComfyNode):
@@ -170,22 +172,24 @@ class NorGet(io.ComfyNode):
         )
 
     @classmethod
-    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+    def check_lazy_status(cls, on_true, on_false, expression1, expression2):
         if on_false is MISSING:
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
+        if (expression1 and expression2) and on_false is None:
+            return ["on_false"]
         if (not expression1 and not expression2) and on_true is None:
             return ["on_true"]
-        if not not expression1 and not expression2 and on_false is None:
+        if (expression1 or expression2) and on_false is None:
             return ["on_false"]
+        return None
 
     @classmethod
-    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool):
         if not expression1 and not expression2:
             return io.NodeOutput(on_true)
-        else:
-            return io.NodeOutput(on_false)
+        return io.NodeOutput(on_false)
 
 
 class XnorGet(io.ComfyNode):
@@ -208,24 +212,26 @@ class XnorGet(io.ComfyNode):
         )
 
     @classmethod
-    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+    def check_lazy_status(cls, on_true, on_false, expression1, expression2):
         if on_false is MISSING:
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
-        if ((expression1 and expression2) or (not expression1 and not expression2)) and on_true is None:
+        if (expression1 and expression2) and on_true is None:
             return ["on_true"]
-        if not ((expression1 and expression2) or (not expression1 and not expression2)) and on_false is None:
+        if (not expression1 and not expression2) and on_true is None:
+            return ["on_true"]
+        if (expression1 or expression2) and on_false is None:
             return ["on_false"]
+        return None
 
     @classmethod
-    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool):
         if expression1 and expression2:
             return io.NodeOutput(on_true)
-        elif not expression1 and not expression2:
+        if not expression1 and not expression2:
             return io.NodeOutput(on_true)
-        else:
-            return io.NodeOutput(on_false)
+        return io.NodeOutput(on_false)
 
 
 class NandGet(io.ComfyNode):
@@ -248,175 +254,21 @@ class NandGet(io.ComfyNode):
         )
 
     @classmethod
-    def check_lazy_status(cls, on_true=None, on_false=None, expression1=True, expression2=True):
+    def check_lazy_status(cls, on_true, on_false, expression1, expression2):
         if on_false is MISSING:
             return ["on_true"]
         if on_true is MISSING:
             return ["on_false"]
-        if not (expression1 and expression2) and on_true is None:
-            return ["on_true"]
         if (expression1 and expression2) and on_false is None:
             return ["on_false"]
+        if (not expression1 and not expression2) and on_true is None:
+            return ["on_true"]
+        if (expression1 or expression2) and on_true is None:
+            return ["on_true"]
+        return None
 
     @classmethod
-    def execute(cls, on_true, on_false, expression1: bool, expression2: bool) -> io.NodeOutput:
+    def execute(cls, on_true, on_false, expression1: bool, expression2: bool):
         if expression1 and expression2:
             return io.NodeOutput(on_false)
-        else:
-            return io.NodeOutput(on_true)
-
-
-class NotGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDNotGate",
-            display_name="DD Not Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("boolean", default=True),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, boolean) -> io.NodeOutput:
-        return io.NodeOutput(not boolean)
-
-
-# Logic Gates
-class OrGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDOrGate",
-            display_name="DD Or Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=False),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        return io.NodeOutput(expression1 or expression2)
-
-
-class AndGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDAndGate",
-            display_name="DD And Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=True),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        return io.NodeOutput(expression1 and expression2)
-
-
-class XorGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDIfXorGate",
-            display_name="DD XOR Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=False),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        if expression1 and expression2:
-            return io.NodeOutput(False)
-        elif not expression1 and not expression2:
-            return io.NodeOutput(False)
-        else:
-            return io.NodeOutput(True)
-
-
-class NorGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDIfNorGate",
-            display_name="DD NOR Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=False),
-                io.Boolean.Input("expression2", default=False),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        return io.NodeOutput(not expression1 and not expression2)
-
-
-class NandGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDifNandGate",
-            display_name="DD NAND Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=False),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        return io.NodeOutput(not (expression1 and expression2))
-
-
-class XnorGate(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="DDifXnorGate",
-            display_name="DD XNOR Gate",
-            category=LogicGates,
-            inputs=[
-                io.Boolean.Input("expression1", default=True),
-                io.Boolean.Input("expression2", default=True),
-            ],
-            outputs=[
-                io.Boolean.Output("*"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, expression1: bool, expression2: bool) -> io.NodeOutput:
-        if expression1 and expression2:
-            return io.NodeOutput(True)
-        elif not expression1 and not expression2:
-            return io.NodeOutput(True)
-        return io.NodeOutput(False)
+        return io.NodeOutput(on_true)

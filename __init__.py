@@ -1,12 +1,5 @@
 from comfy_api.latest import ComfyExtension, io
-from .src.dd_logicnodes.nodes import (
-    IfAnyGet,
-    OrGet,
-    AndGet,
-    NorGet,
-    XorGet,
-    NandGet,
-    XnorGet,
+from .src.dd_logicnodes.logicGates import (
     NotGate,
     OrGate,
     AndGate,
@@ -15,30 +8,38 @@ from .src.dd_logicnodes.nodes import (
     NandGate,
     XnorGate,
 )
+from .src.dd_logicnodes.logicGetters import (
+    IfAnyGet,
+    OrGet,
+    AndGet,
+    NorGet,
+    XorGet,
+    NandGet,
+    XnorGet,
+)
+from .src.dd_logicnodes.logicHelpers import Rerouter
 
 
-UE_VERSION = "7.7"
-__all__ = []
+class DDLogicNodes(ComfyExtension):
+    async def get_node_list(self) -> list[type[io.ComfyNode]]:
+        return [
+            IfAnyGet,
+            OrGet,
+            AndGet,
+            NorGet,
+            XorGet,
+            NandGet,
+            XnorGet,
+            NotGate,
+            OrGate,
+            AndGate,
+            NorGate,
+            XorGate,
+            NandGate,
+            XnorGate,
+            Rerouter,
+        ]
 
 
 async def comfy_entrypoint() -> ComfyExtension:
-    class DDLogicNodes(ComfyExtension):
-        async def get_node_list(self) -> list[type[io.ComfyNode]]:
-            return [
-                IfAnyGet,
-                OrGet,
-                AndGet,
-                NorGet,
-                XorGet,
-                NandGet,
-                XnorGet,
-                NotGate,
-                OrGate,
-                AndGate,
-                NorGate,
-                XorGate,
-                NandGate,
-                XnorGate,
-            ]
-
     return DDLogicNodes()
