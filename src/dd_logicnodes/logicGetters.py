@@ -34,7 +34,10 @@ class IfAnyGet(io.ComfyNode):
 
     @classmethod
     def execute(cls, ANY=None, on_true=None, on_false=None) -> io.NodeOutput:
-        return io.NodeOutput(on_true if ANY else on_false)
+        try:
+            return io.NodeOutput(on_true if ANY.any() else on_false)
+        except:
+            return io.NodeOutput(on_true if ANY else on_false)
 
 
 class OrGet(io.ComfyNode):
@@ -272,3 +275,30 @@ class NandGet(io.ComfyNode):
         if expression1 and expression2:
             return io.NodeOutput(on_false)
         return io.NodeOutput(on_true)
+
+
+class IfEither(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("either")
+        return io.Schema(
+            node_id="DDEitherIsfine",
+            display_name="DD Either",
+            category=Getters,
+            inputs=[
+                io.MatchType.Input("ANY", template=template),
+                io.MatchType.Input("if_any", template=template, optional=True),
+            ],
+            outputs=[
+                io.MatchType.Output(display_name="output", template=template),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, **kwargs) -> io.NodeOutput:
+        ANY = kwargs.get("ANY")
+        if_any = kwargs.get("if_any")
+        try:
+            return io.NodeOutput(if_any if if_any.any() else ANY)
+        except:
+            return io.NodeOutput(if_any if if_any else ANY)

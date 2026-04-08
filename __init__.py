@@ -16,6 +16,7 @@ from .src.dd_logicnodes.logicGetters import (
     XorGet,
     NandGet,
     XnorGet,
+    IfEither,
 )
 from .src.dd_logicnodes.logicHelpers import Rerouter
 
@@ -30,6 +31,7 @@ class DDLogicNodes(ComfyExtension):
             XorGet,
             NandGet,
             XnorGet,
+            IfEither,
             NotGate,
             OrGate,
             AndGate,
