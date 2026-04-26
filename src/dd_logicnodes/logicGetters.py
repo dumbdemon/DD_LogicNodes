@@ -1,5 +1,5 @@
-from comfy.comfy_types.node_typing import IO
-from comfy_api.latest import io
+from comfy.comfy_types.node_typing import IO  # type: ignore[import-not-found]
+from comfy_api.latest import io  # type: ignore[import-not-found]
 
 
 Getters = "DD Logic Nodes/Getters"
@@ -302,3 +302,32 @@ class IfEither(io.ComfyNode):
             return io.NodeOutput(if_any if if_any.any() else ANY)
         except:
             return io.NodeOutput(if_any if if_any else ANY)
+
+
+class ChangeSource(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("mychoice")
+        return io.Schema(
+            node_id="DDEitherOr",
+            display_name="DD Either Choice",
+            category=Getters,
+            inputs=[
+                io.MatchType.Input("A", template=template),
+                io.MatchType.Input("B", template=template),
+                io.Boolean.Input(
+                    id="switch_source",
+                    display_name="Source",
+                    default=True,
+                    label_on="A",
+                    label_off="B",
+                ),
+            ],
+            outputs=[
+                io.MatchType.Output(display_name="output", template=template),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, A, B, switch_source) -> io.NodeOutput:
+        return io.NodeOutput(A if switch_source else B)

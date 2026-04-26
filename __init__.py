@@ -1,5 +1,5 @@
-from comfy_api.latest import ComfyExtension, io
-from .src.dd_logicnodes.logicGates import (
+from comfy_api.latest import ComfyExtension, io  # type: ignore[import-not-found]
+from .src.dd_logicnodes.logicGates import (  # zuban: ignore[misc]
     NotGate,
     OrGate,
     AndGate,
@@ -8,7 +8,7 @@ from .src.dd_logicnodes.logicGates import (
     NandGate,
     XnorGate,
 )
-from .src.dd_logicnodes.logicGetters import (
+from .src.dd_logicnodes.logicGetters import (  # zuban: ignore[misc]
     IfAnyGet,
     OrGet,
     AndGet,
@@ -17,8 +17,9 @@ from .src.dd_logicnodes.logicGetters import (
     NandGet,
     XnorGet,
     IfEither,
+    ChangeSource,
 )
-from .src.dd_logicnodes.logicHelpers import Rerouter
+from .src.dd_logicnodes.logicHelpers import Rerouter  # zuban: ignore[misc]
 
 
 class DDLogicNodes(ComfyExtension):
@@ -41,6 +42,7 @@ class DDLogicNodes(ComfyExtension):
             NandGate,
             XnorGate,
             Rerouter,
+            ChangeSource,
         ]
 
 

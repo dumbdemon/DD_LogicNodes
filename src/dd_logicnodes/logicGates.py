@@ -1,4 +1,4 @@
-from comfy_api.latest import io
+from comfy_api.latest import io  # type: ignore[import-not-found]
 
 
 LogicGates = "DD Logic Nodes/Logic Gates"

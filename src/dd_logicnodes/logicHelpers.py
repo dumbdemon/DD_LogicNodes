@@ -1,4 +1,4 @@
-from comfy_api.latest import io
+from comfy_api.latest import io  # type: ignore[import-not-found]
 
 
 Helpers = "DD Logic Nodes/Helper Nodes"
@@ -31,7 +31,7 @@ class Rerouter(io.ComfyNode):
 
     @classmethod
     def blocker(cls, value, block=False):
-        from comfy_execution.graph_utils import ExecutionBlocker
+        from comfy_execution.graph_utils import ExecutionBlocker  # type: ignore[import-not-found]
 
         return ExecutionBlocker(None) if block else value
 
