@@ -156,3 +156,44 @@ class XnorGate(io.ComfyNode):
         if not expression1 and not expression2:
             return io.NodeOutput(True)
         return io.NodeOutput(False)
+
+class Contains(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("obj", allowed_types=[io.String, io.Int, io.Float])
+        template_autogrow = io.Autogrow.TemplatePrefix(
+            input=io.MatchType.Input("check_value", template=template),
+            prefix="check_value",
+        )
+        return io.Schema(
+            node_id="DDContainsThis",
+            display_name="DD Contains",
+            category=LogicGates,
+            inputs=[
+                io.MatchType.Input("to_check", template=template),
+                io.Autogrow.Input("check_what", template=template_autogrow),
+                io.Boolean.Input(
+                    "case_sensitive",
+                    display_name="Case Sensitive",
+                    default=False,
+                    label_on="Sensitive",
+                    label_off="Insensitive",
+                ),
+            ],
+            outputs=[
+                io.Boolean.Output("if_contains"),
+            ],
+        )
+    
+    @classmethod
+    def execute(cls, to_check: ANY, check_what: io.Autogrow.Type, case_sensitive: bool) -> io.NodeOutput:
+        check_this = f"{to_check}"
+        for this in check_what.values():
+            for_this = f"{this}"
+            if case_sensitive:
+                if for_this in check_this:
+                    return io.NodeOutput(True)
+            else:
+                if for_this.casefold() in check_this.casefold():
+                    return io.NodeOutput(True)
+        return io.NodeOutput(False)

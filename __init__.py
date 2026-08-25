@@ -7,6 +7,7 @@ from .src.dd_logicnodes.logicGates import (  # zuban: ignore[misc]
     XorGate,
     NandGate,
     XnorGate,
+    Contains,
 )
 from .src.dd_logicnodes.logicGetters import (  # zuban: ignore[misc]
     IfAnyGet,
@@ -33,6 +34,7 @@ class DDLogicNodes(ComfyExtension):
             XorGet,
             NandGet,
             XnorGet,
+            Contains,
             IfEither,
             NotGate,
             OrGate,
