@@ -23,7 +23,7 @@ This currently has 18 nodes.
 - DD XNOR Gate
   - Returns __true__ if __both__ expresions are true or if __both__ expresions are false.
 - DD Contains
-  - Returns __true__ if any of the source has any of the attached items (Strings, Ints, of Floats).
+  - Returns __true__ if any the source has any of the attached items (Strings, Ints, of Floats).
 
 ### Logical Getters
 
