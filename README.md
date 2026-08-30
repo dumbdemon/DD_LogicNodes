@@ -4,7 +4,7 @@ A collection of Logic Nodes that I think are missing in core ComfyUI.
 
 ## Incomplete Yet Complete
 
-This currently has 14 nodes.
+This currently has 18 nodes.
 
 ### Logic
 
@@ -12,16 +12,18 @@ This currently has 14 nodes.
   - Returns a flipped boolean.
 - DD Or Gate
   - Returns __true__ if either expression is true.
-- DD And Getter
+- DD And Gate
   - Returns __true__ ___only___ if __both__ ezpressions are true.
-- DD XOR Getter
+- DD XOR Gate
   - Returns __true__ ___only___ if __one__ expression is true.
-- DD NOR Getter
+- DD NOR Gate
   - Returns __true__ ___only___ if __both__ ezpressions are false.
-- DD NAND Getter
+- DD NAND Gate
   - Returns __true__ except when __both__  expressions are true.
-- DD XNOR Getter
+- DD XNOR Gate
   - Returns __true__ if __both__ expresions are true or if __both__ expresions are false.
+- DD Contains
+  - Returns __true__ if any of the source has any of the attached items (Strings, Ints, of Floats).
 
 ### Logical Getters
 
@@ -39,6 +41,10 @@ This currently has 14 nodes.
   - Returns `on_true` except when __both__  expressions are true.
 - DD XNOR Getter
   - Returns `on_true` if __both__ expresions are true or if __both__ expresions are false.
+- DD Either
+  - Returns `if_any` if it has an input; otherwise, it returns `ANY`.
+- DD Either Chioce
+  - Returns `on_true` if ___true___.
 
 ### Logic Helpers
 
