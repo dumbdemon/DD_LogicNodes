@@ -1,4 +1,5 @@
 from comfy_api.latest import io  # type: ignore[import-not-found]
+from typing import Any
 
 
 LogicGates = "DD Logic Nodes/Logic Gates"
@@ -157,6 +158,7 @@ class XnorGate(io.ComfyNode):
             return io.NodeOutput(True)
         return io.NodeOutput(False)
 
+
 class Contains(io.ComfyNode):
     @classmethod
     def define_schema(cls) -> io.Schema:
@@ -184,9 +186,9 @@ class Contains(io.ComfyNode):
                 io.Boolean.Output("if_contains"),
             ],
         )
-    
+
     @classmethod
-    def execute(cls, to_check: ANY, check_what: io.Autogrow.Type, case_sensitive: bool) -> io.NodeOutput:
+    def execute(cls, to_check: Any, check_what: io.Autogrow.Type, case_sensitive: bool) -> io.NodeOutput:
         check_this = f"{to_check}"
         for this in check_what.values():
             for_this = f"{this}"
@@ -197,3 +199,52 @@ class Contains(io.ComfyNode):
                 if for_this.casefold() in check_this.casefold():
                     return io.NodeOutput(True)
         return io.NodeOutput(False)
+
+
+class NumberCompare(io.ComfyNode):
+    @classmethod
+    def define_schema(cls) -> io.Schema:
+        template = io.MatchType.Template("number", allowed_types=[io.Int, io.Float])
+        return io.Schema(
+            node_id="DDNumberCompare",
+            display_name="DD Number Compare",
+            category=LogicGates,
+            inputs=[
+                io.MatchType.Input("numA", template=template),
+                io.MatchType.Input("numB", template=template),
+                io.Combo.Input(
+                    "compare_type",
+                    display_name="Compare",
+                    options=["==", ">", "<", ">=", "<="],
+                    default="==",
+                ),
+            ],
+            outputs=[
+                io.Boolean.Output("*"),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, numA: int | float, numB: int | float, compare_type: str) -> io.NodeOutput:
+        if compare_type == "==":
+            return io.NodeOutput(numA == numB)
+        if compare_type == ">":
+            return io.NodeOutput(numA > numB)
+        if compare_type == "<":
+            return io.NodeOutput(numA < numB)
+        if compare_type == "<=":
+            return io.NodeOutput(numA <= numB)
+        return io.NodeOutput(numA >= numB)
+
+
+logic_gates: list[type[io.ComfyNode]] = [
+    NotGate,
+    OrGate,
+    AndGate,
+    NorGate,
+    XorGate,
+    NandGate,
+    XnorGate,
+    Contains,
+    NumberCompare,
+]

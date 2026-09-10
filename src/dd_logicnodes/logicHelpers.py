@@ -40,3 +40,8 @@ class Rerouter(io.ComfyNode):
         routeA = cls.blocker(source, not switch_route)
         routeB = cls.blocker(source, switch_route)
         return io.NodeOutput(routeA, routeB)
+
+
+logic_helpers: list[type[io.ComfyNode]] = [
+    Rerouter,
+]

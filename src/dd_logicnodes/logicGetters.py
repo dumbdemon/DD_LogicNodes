@@ -331,3 +331,16 @@ class ChangeSource(io.ComfyNode):
     @classmethod
     def execute(cls, A, B, switch_source) -> io.NodeOutput:
         return io.NodeOutput(A if switch_source else B)
+
+
+logic_getters: list[type[io.ComfyNode]] = [
+    IfAnyGet,
+    OrGet,
+    AndGet,
+    NorGet,
+    XorGet,
+    NandGet,
+    XnorGet,
+    IfEither,
+    ChangeSource,
+]
